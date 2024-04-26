@@ -1,0 +1,7 @@
+service: () -> {
+    createUser: (text, text, text, text) -> (record {id:principal; alias:text; nombre:text; segundoApellido:text; primerApellido:text});
+    deleteUser: (principal) -> (variant {Ok:record {id:principal; alias:text; nombre:text; segundoApellido:text; primerApellido:text}; Err:variant {UserDoesNotExist:principal}});
+    readUserById: (principal) -> (opt record {id:principal; alias:text; nombre:text; segundoApellido:text; primerApellido:text}) query;
+    readUsers: () -> (vec record {id:principal; alias:text; nombre:text; segundoApellido:text; primerApellido:text}) query;
+    updateUser: (principal, text, text, text, text) -> (variant {Ok:record {id:principal; alias:text; nombre:text; segundoApellido:text; primerApellido:text}; Err:variant {UserDoesNotExist:principal}});
+}
