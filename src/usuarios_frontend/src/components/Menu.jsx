@@ -83,18 +83,10 @@ const Menu = () => {
                         <li className="nav-item">
                             <a className="nav-link active" aria-current="page" href="#"></a>
                         </li>
-                        <li className="nav-item dropdown">
-                            <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Usuarios
-                            </a>
-                            <ul className="dropdown-menu">
-                                <li><Link to='/nuevo-usuario' className="dropdown-item" >Nuevo</Link></li>
-                                <li><Link to='/usuarios' className="dropdown-item" id="btnUserList">Usuarios</Link></li>
-                            </ul>
-                        </li>
+                        
                     </ul>
                     
-                    <span className="fs-6 text">{principal}</span>
+                    {/* <span className="fs-6 text">{principal}</span> */}
                     <ConnectButton />
                     <ConnectDialog />
                 </div>
@@ -114,7 +106,7 @@ const Menu = () => {
                             <a className="nav-link active" aria-current="page" href="#"></a>
                         </li>
                     </ul>
-                    <span className="fs-6 text">Inicia sesión</span>
+                    <span className="fs-6 text" style={{ color: "white", marginRight: "5px"}}>Inicia sesión</span>
                     <ConnectButton />
                     <ConnectDialog />
                 </div>

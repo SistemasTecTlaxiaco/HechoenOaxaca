@@ -1,6 +1,8 @@
 import { useCanister, useConnect } from "@connect2ic/react";
 import React, { useEffect, useState } from "react";
 import Home from './Home'
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
 
 const Users = () => {
   
@@ -9,7 +11,57 @@ const Users = () => {
   
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState("");
+  const [idUser, setIdUser] = useState("");
+  const [alias, setAlias] = useState("");
 
+  const [showModalEditar, setShowModalEditar] = useState(false);
+  const [showModalEliminar, setShowModalEliminar] = useState(false);
+
+  const updateUser = async () => {
+    console.log('aui')
+    const form = document.getElementById("formEditar")
+    
+    const nombre = form.nombre.value;
+    const primerApellido = form.primerApellido.value;
+    const segundoApellido = form.segundoApellido.value;
+    const alias = form.alias.value;
+
+    setLoading("Loading...");
+
+    await usersBackend.updateUser(idUser, nombre, primerApellido, segundoApellido, alias);
+    setLoading("");
+    setIdUser("")
+
+    setShowModalEditar(false);
+    obtieneUsuarios();
+  }
+
+
+    
+  const handleShowModalEditar = async (idUsuario) => {
+    setShowModalEditar(true);
+    setIdUser(idUsuario)
+    
+    const usuario = await usersBackend.readUserById(idUsuario);
+
+    const form = document.getElementById("formEditar")
+    form.nombre.value = usuario[0].nombre
+    form.primerApellido.value = usuario[0].primerApellido
+    form.segundoApellido.value = usuario[0].segundoApellido
+    form.alias.value = usuario[0].alias
+
+  }
+
+  const handleShowModalEliminar = async (idUsuario, alias) => {
+    setShowModalEliminar(true);
+    setAlias(alias)
+    setIdUser(idUsuario)
+      
+
+  }
+
+  const handleCloseModalEditar = () => setShowModalEditar(false);
+  const handleCloseModalEliminar = () => setShowModalEliminar(false);
 
   useEffect(() => {
       obtieneUsuarios();
@@ -32,23 +84,23 @@ const Users = () => {
       }
 
   }
+
+  
   
   const deleteUser = async (e) => {
-    e.preventDefault();
-   
-    var id = e.target[0].value;
 
     setLoading("Loading...");
 
-    await usersBackend.deleteUser(id);
+    await usersBackend.deleteUser(idUser);
     setLoading("");
-    {
-        document.getElementById('btnUserList').click();
-    }
+    setIdUser("")
+    setAlias("")
+    setShowModalEliminar(false);
+    
+    obtieneUsuarios()
   }
   
-
-
+ 
   return(
     <>
     { principal 
@@ -61,64 +113,115 @@ const Users = () => {
             :
               <div></div>
           }
-        <div className="card">
-          <div className="card-header">
-          Lista de usuarios
-          </div>
-          <div className="card-body">
-          <table className="table">
-              <thead>
-              <tr>
-                  <th>Nombre</th>
-                  <th>Primer apellido</th>
-                  <th>Segundo apellido</th>
-                  <th>Alias</th>
-                  <th colSpan="2">Opciones</th>
-              </tr>
-              </thead>
-              <tbody id="tbody">
-              {users.map((user) => {
-                return (
-                  <tr key={user.id}>
-                      <td>{user.nombre}</td>
-                      <td>{user.primerApellido}</td>
-                      <td>{user.segundoApellido}</td>
-                      <td>{user.alias}</td>
-                      <td><button className="btn btn-primary btnEditarArea" data-id="{user.id}">Editar</button></td>
-                      <td>
-                        <form onSubmit={deleteUser} method="post">
-                          <input type="hidden" value={user.id} name="id" />
-                          <button 
-                              type="submit"
-                              className="btn btn-danger btnEliminarModal" 
-                            >
-                              Eliminar
-                          </button>
-                          </form>
-                      </td>
+          <div className="card">
+            <div className="card-header">
+              Lista de usuarios
+            </div>
+            <div className="card-body">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Primer apellido</th>
+                    <th>Segundo apellido</th>
+                    <th>Alias</th>
+                    <th colSpan="2">Opciones</th>
                   </tr>
-                );
-                })}
-              </tbody>
-          </table>         
-          </div>
+                </thead>
+                <tbody id="tbody">
+                  {users.map((user) => {
+                    return (
+                      <tr key={user.id}>
+                        <td>{user.nombre}</td>
+                        <td>{user.primerApellido}</td>
+                        <td>{user.segundoApellido}</td>
+                        <td>{user.alias}</td>
+                        <td>
+                          <button type="button" className="btn btn-primary" onClick={() => handleShowModalEditar(`${user.id}`)}>Editar</button>
+                        </td>
+                        <td>
+                          <button type="button" className="btn btn-danger" onClick={() => handleShowModalEliminar(`${user.id}`,user.alias)}>Eliminar</button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>         
+            </div>
           </div>
         </div>
-        <div className="modal fade" id="eliminarModal" tabIndex="-1" aria-labelledby="eliminarModalLabel" aria-hidden="true">
-          <div className="modal-dialog">
-              <div className="modal-content">
-              <div className="modal-header">
-                  <h1 className="modal-title fs-5" id="eliminarModalLabel">Confirmación</h1>
-                  <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+
+        <Modal show={showModalEditar} onHide={handleCloseModalEditar}>
+          <Modal.Header closeButton>
+            <Modal.Title>Actualizar usuario</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <div className="card">
+              <div className="card-body">
+                {loading != "" 
+                  ? 
+                  <div className="alert alert-primary">{loading}</div>
+                  :
+                  <div></div>
+                }
+                <form style={{display:"inline"}} id="formEditar" >
+                  <div className="form-group">
+                      <label htmlFor="nombre" >Nombre usuario</label>
+                      <input type="text" className="form-control" id="nombre" placeholder="Juan" />
+                  </div>
+                  <div className="form-group">
+                      <label htmlFor="primerApellido" >Primer apellido</label>
+                      <input type="text" className="form-control" id="primerApellido" placeholder="Pérez" />
+                  </div>
+                      <div className="form-group">
+                      <label htmlFor="segundoApellido" >Segundo apellido</label>
+                      <input type="text" className="form-control" id="segundoApellido" placeholder="López" />
+                  </div>
+                  <div className="form-group">
+                      <label htmlFor="alias" >Alias</label>
+                      <input type="text" className="form-control" id="alias" placeholder="juanito" />
+                  </div>
+                  <br />
+                </form>
               </div>
-              <div className="modal-body" id="modalBody"></div>
-              <div className="modal-footer">
-                  <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                  <button type="button" id="btnEliminarArea" className="btn btn-danger">Eliminar</button>
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleCloseModalEditar}>
+              Cerrar
+            </Button>
+            <Button variant="primary"  onClick={updateUser}>
+              Guardar
+            </Button>
+          </Modal.Footer>
+        </Modal>
+
+        <Modal show={showModalEliminar} onHide={handleCloseModalEliminar}>
+          <Modal.Header closeButton>
+            <Modal.Title>Confirmación</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <div className="card">
+              <div className="card-body">
+                {loading != "" 
+                  ? 
+                  <div className="alert alert-primary">{loading}</div>
+                  :
+                  <div></div>
+                }
+                <p> Deseas eliminar el usuario con alias {alias}</p>
               </div>
-              </div>
-          </div>
-        </div>
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleCloseModalEliminar}>
+              Cerrar
+            </Button>
+            <Button variant="danger"  onClick={deleteUser}>
+              Eliminar
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </div>
     : 
       <Home />

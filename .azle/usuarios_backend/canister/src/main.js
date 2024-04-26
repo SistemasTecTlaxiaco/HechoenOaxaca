@@ -100737,7 +100737,7 @@ var User = Record2({
     alias: text
 });
 var AplicationError = Variant2({
-    UserDoesNotExist: Principal3
+    UserDoesNotExist: text
 });
 var users = StableBTreeMap(0);
 var src_default = Canister({
@@ -100762,14 +100762,14 @@ var src_default = Canister({
         return users.values();
     }),
     readUserById: query([
-        Principal3
+        text
     ], Opt2(User), (id2)=>{
-        return users.get(id2);
+        return users.get(Principal3.fromText(id2));
     }),
     deleteUser: update([
-        Principal3
+        text
     ], Result(User, AplicationError), (id2)=>{
-        const userOpt = users.get(id2);
+        const userOpt = users.get(Principal3.fromText(id2));
         if ("None" in userOpt) {
             return Err({
                 UserDoesNotExist: id2
@@ -100780,27 +100780,27 @@ var src_default = Canister({
         return Ok(user);
     }),
     updateUser: update([
-        Principal3,
+        text,
         text,
         text,
         text,
         text
     ], Result(User, AplicationError), (userId, nombre, primerApellido, segundoApellido, alias)=>{
-        const userOpt = users.get(userId);
+        const userOpt = users.get(Principal3.fromText(userId));
         if ("None" in userOpt) {
             return Err({
                 UserDoesNotExist: userId
             });
         }
         const newUser = {
-            id: userId,
+            id: Principal3.fromText(userId),
             nombre,
             primerApellido,
             segundoApellido,
             alias
         };
-        users.remove(userId);
-        users.insert(userId, newUser);
+        users.remove(Principal3.fromText(userId));
+        users.insert(Principal3.fromText(userId), newUser);
         return Ok(newUser);
     })
 });

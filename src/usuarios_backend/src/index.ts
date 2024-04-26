@@ -24,7 +24,7 @@ const User = Record({
 type User = typeof User.tsType;
 
 const AplicationError = Variant({
-    UserDoesNotExist: Principal
+    UserDoesNotExist: text
 });
 
 type AplicationError = typeof AplicationError.tsType;
@@ -49,11 +49,12 @@ export default Canister({
     readUsers: query([], Vec(User), () => {
         return users.values();
     }),
-    readUserById: query([Principal], Opt(User), (id) => {
-        return users.get(id);
+    readUserById: query([text], Opt(User), (id) => {
+        return users.get(Principal.fromText(id));
     }),
-    deleteUser: update([Principal], Result(User, AplicationError), (id) => {
-        const userOpt = users.get(id);
+
+    deleteUser: update([text], Result(User, AplicationError), (id) => {
+        const userOpt = users.get(Principal.fromText(id));
 
         if ('None' in userOpt) {
             return Err({
@@ -66,10 +67,10 @@ export default Canister({
         return Ok(user);
     }),
     updateUser: update(
-        [Principal, text, text, text, text],
+        [text, text, text, text, text],
         Result(User, AplicationError),
         (userId, nombre, primerApellido, segundoApellido, alias) => {
-            const userOpt = users.get(userId);
+            const userOpt = users.get(Principal.fromText(userId));
 
             if ('None' in userOpt) {
                 return Err({
@@ -77,15 +78,15 @@ export default Canister({
                 });
             }
             const newUser: User = {
-                id:userId,
+                id:Principal.fromText(userId),
                 nombre: nombre,
                 primerApellido: primerApellido,
                 segundoApellido: segundoApellido,
                 alias: alias
             };
 
-            users.remove(userId)
-            users.insert(userId, newUser);
+            users.remove(Principal.fromText(userId))
+            users.insert(Principal.fromText(userId), newUser);
 
             return Ok(newUser);
         }
