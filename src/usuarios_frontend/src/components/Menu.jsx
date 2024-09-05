@@ -131,7 +131,7 @@ const client = createClient({
       usuarios_backend,
     },
     providers: [
-      new InternetIdentity({ providerUrl: "http://bw4dl-smaaa-aaaaa-qaacq-cai.localhost:4943" })
+      new InternetIdentity({ providerUrl: "http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:4943/" })
     ],
     globalProviderConfig: {
       /*
