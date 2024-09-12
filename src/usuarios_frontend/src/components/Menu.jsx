@@ -72,7 +72,7 @@ const Menu = () => {
         { principal ? ( 
             <div className="container-fluid">
                 
-                    <Link to='/' className="navbar-brand">Sistema</Link>
+                    <Link to='/' className="navbar-brand">Mercado</Link>
                     <Link to='/nuevo-usuario'className="navbar-brand" >Nuevo</Link>
                     <Link to='/usuarios'className="navbar-brand" id="btnUserList">Usuarios</Link>
                     <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
