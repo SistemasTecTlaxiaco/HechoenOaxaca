@@ -14,85 +14,45 @@ import {
     Vec
 } from 'azle';
 
-const User = Record({
+// Definición de la clase Producto
+const Producto = Record({
     id: Principal,
     nombre: text,
-    primerApellido: text,
-    segundoApellido: text,
-    alias: text
+    precio: text, // Puede ser number si prefieres manejarlo así
+    descripcion: text
 });
-type User = typeof User.tsType;
+type Producto = typeof Producto.tsType;
 
+// Definición de la clase Artesano
+const Artesano = Record({
+    id: Principal,
+    nombre: text,
+    alias: text,
+    productos: Vec(Producto) // Relación con productos
+});
+type Artesano = typeof Artesano.tsType;
+
+// Definición de la clase Pedido
+const Pedido = Record({
+    id: Principal,
+    producto: Producto, // Relación con producto
+    comprador: text,
+    fecha: text
+});
+type Pedido = typeof Pedido.tsType;
+
+// Mapa de almacenamiento para cada clase
+let productos = StableBTreeMap<Principal, Producto>(0);
+let artesanos = StableBTreeMap<Principal, Artesano>(1);
+let pedidos = StableBTreeMap<Principal, Pedido>(2);
+
+// Errores de la aplicación
 const AplicationError = Variant({
-    UserDoesNotExist: text
+    EntityDoesNotExist: text
 });
-
 type AplicationError = typeof AplicationError.tsType;
 
-let users = StableBTreeMap<Principal, User>(0);
-
-export default Canister({
-    createUser: update([text, text, text, text], User, (nombre, primerApellido, segundoApellido, alias) => {
-        const id = generateId();
-        const user: User = {
-            id:id,
-            nombre: nombre,
-            primerApellido: primerApellido,
-            segundoApellido: segundoApellido,
-            alias: alias
-        };
-
-        users.insert(user.id, user);
-
-        return user;
-    }),
-    readUsers: query([], Vec(User), () => {
-        return users.values();
-    }),
-    readUserById: query([text], Opt(User), (id) => {
-        return users.get(Principal.fromText(id));
-    }),
-
-    deleteUser: update([text], Result(User, AplicationError), (id) => {
-        const userOpt = users.get(Principal.fromText(id));
-
-        if ('None' in userOpt) {
-            return Err({
-                UserDoesNotExist: id
-            });
-        }
-
-        const user = userOpt.Some;
-        users.remove(user.id);
-        return Ok(user);
-    }),
-    updateUser: update(
-        [text, text, text, text, text],
-        Result(User, AplicationError),
-        (userId, nombre, primerApellido, segundoApellido, alias) => {
-            const userOpt = users.get(Principal.fromText(userId));
-
-            if ('None' in userOpt) {
-                return Err({
-                    UserDoesNotExist: userId
-                });
-            }
-            const newUser: User = {
-                id:Principal.fromText(userId),
-                nombre: nombre,
-                primerApellido: primerApellido,
-                segundoApellido: segundoApellido,
-                alias: alias
-            };
-
-            users.remove(Principal.fromText(userId))
-            users.insert(Principal.fromText(userId), newUser);
-
-            return Ok(newUser);
-        }
-    )
-})
-
+// Función para generar un ID único
 function generateId(): Principal {
     const randomBytes = new Array(29)
         .fill(0)
@@ -100,3 +60,120 @@ function generateId(): Principal {
 
     return Principal.fromUint8Array(Uint8Array.from(randomBytes));
 }
+
+// Canister con las funciones para gestionar productos, artesanos y pedidos
+export default Canister({
+    // Crear un nuevo producto
+    createProducto: update([text, text, text], Producto, (nombre, precio, descripcion) => {
+        const id = generateId();
+        const producto: Producto = {
+            id: id,
+            nombre: nombre,
+            precio: precio,
+            descripcion: descripcion
+        };
+
+        productos.insert(producto.id, producto);
+        return producto;
+    }),
+
+    // Leer todos los productos
+    readProductos: query([], Vec(Producto), () => {
+        return productos.values();
+    }),
+
+    // Crear un nuevo artesano
+    createArtesano: update([text, text], Artesano, (nombre, alias) => {
+        const id = generateId();
+        const artesano: Artesano = {
+            id: id,
+            nombre: nombre,
+            alias: alias,
+            productos: [] // Inicialmente sin productos
+        };
+
+        artesanos.insert(artesano.id, artesano);
+        return artesano;
+    }),
+
+    // Leer todos los artesanos
+    readArtesanos: query([], Vec(Artesano), () => {
+        return artesanos.values();
+    }),
+
+    // Crear un nuevo pedido
+    createPedido: update([Principal, text], Pedido, (productoId, comprador) => {
+        const id = generateId();
+        const productoOpt = productos.get(productoId);
+
+        if ('None' in productoOpt) {
+            return Err({
+                EntityDoesNotExist: 'El producto no existe'
+            });
+        }
+
+        const pedido: Pedido = {
+            id: id,
+            producto: productoOpt.Some,
+            comprador: comprador,
+            fecha: new Date().toISOString()
+        };
+
+        pedidos.insert(pedido.id, pedido);
+        return Ok(pedido);
+    }),
+
+    // Leer todos los pedidos
+    readPedidos: query([], Vec(Pedido), () => {
+        return pedidos.values();
+    }),
+
+    // Leer pedidos por ID de artesano
+    readPedidosByArtesano: query([Principal], Vec(Pedido), (artesanoId) => {
+        const artesanoOpt = artesanos.get(artesanoId);
+        if ('None' in artesanoOpt) {
+            return [];
+        }
+
+        const artesano = artesanoOpt.Some;
+        return pedidos.values().filter(pedido => pedido.producto.id === artesano.id);
+    }),
+
+    // Actualizar un producto
+    updateProducto: update([text, text, text, text], Result(Producto, AplicationError), (productoId, nombre, precio, descripcion) => {
+        const productoOpt = productos.get(Principal.fromText(productoId));
+
+        if ('None' in productoOpt) {
+            return Err({
+                EntityDoesNotExist: 'El producto no existe'
+            });
+        }
+
+        const productoActualizado: Producto = {
+            id: Principal.fromText(productoId),
+            nombre: nombre,
+            precio: precio,
+            descripcion: descripcion
+        };
+
+        productos.remove(Principal.fromText(productoId));
+        productos.insert(Principal.fromText(productoId), productoActualizado);
+
+        return Ok(productoActualizado);
+    }),
+
+    // Eliminar un producto
+    deleteProducto: update([text], Result(Producto, AplicationError), (productoId) => {
+        const productoOpt = productos.get(Principal.fromText(productoId));
+
+        if ('None' in productoOpt) {
+            return Err({
+                EntityDoesNotExist: 'El producto no existe'
+            });
+        }
+
+        const producto = productoOpt.Some;
+        productos.remove(producto.id);
+        return Ok(producto);
+    })
+});
