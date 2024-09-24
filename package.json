@@ -15,5 +15,10 @@
   "workspaces": [
     "src/usuarios_backend",
     "src/usuarios_frontend"
-  ]
+  ],
+  "dependencies": {
+    "@dfinity/agent": "^2.1.1",
+    "@dfinity/auth-client": "^2.1.1",
+    "react-router-dom": "^6.26.2"
+  }
 }
