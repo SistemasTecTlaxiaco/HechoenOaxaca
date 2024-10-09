@@ -5,7 +5,7 @@ import { ConnectButton, ConnectDialog, useConnect } from "@connect2ic/react";
 import Home from "./Home";
 import Users from "./Users";
 import UserCreate from "./UserCreate";
-import WalletComponent from "./components/WalletComponent"; // Importa el WalletComponent
+import WalletComponent from "./WalletComponent"; // Importa el WalletComponent
 import * as usuarios_backend from "declarations/usuarios_backend";
 import { createClient } from "@connect2ic/core";
 import { InternetIdentity } from "@connect2ic/core/providers/internet-identity";
