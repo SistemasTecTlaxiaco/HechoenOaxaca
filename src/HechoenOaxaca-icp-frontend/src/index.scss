@@ -1,0 +1,77 @@
+// Variables globales
+$primary-color: #d8c300;
+$secondary-color: #6c757d;
+$text-color: #333;
+$navbar-bg: #f8f9fa;
+$link-hover: #d8c300;
+$button-bg: #ff5733;
+$button-hover: darken($button-bg, 10%);
+
+// Estilos del encabezado
+.custom-navbar {
+  background-color: $navbar-bg;
+  padding: 10px 20px;
+  border-bottom: 2px solid $primary-color;
+
+  .custom-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .custom-brand {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: $primary-color;
+    text-decoration: none;
+    &:hover {
+      color: darken($primary-color, 10%);
+    }
+  }
+
+  .custom-links-container {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+  }
+
+  .custom-link {
+    font-size: 1.2rem;
+    text-decoration: none;
+    color: $text-color;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    &:hover {
+      background-color: $link-hover;
+      color: #fff;
+    }
+  }
+
+  .custom-btn {
+    font-size: 1rem;
+    color: #fff;
+    background-color: $button-bg;
+    border: none;
+    padding: 7px 15px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    &:hover {
+      background-color: $button-hover;
+    }
+  }
+
+  .logout-btn {
+    background-color: #dc3545; // Color de peligro para "Salir"
+    &:hover {
+      background-color: darken(#dc3545, 10%);
+    }
+  }
+
+  .custom-connect-btn {
+    background-color: $primary-color;
+    &:hover {
+      background-color: darken($primary-color, 10%);
+    }
+  }
+}
