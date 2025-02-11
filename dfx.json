@@ -1,0 +1,38 @@
+{
+  "canisters": {
+    "HechoenOaxaca-icp-backend": {
+      "main": "src/HechoenOaxaca-icp-backend/main.mo",
+      "type": "motoko",
+      "initial_cycles": 10000000000
+    },
+    "HechoenOaxaca-icp-frontend": {
+      "dependencies": [
+        "HechoenOaxaca-icp-backend"
+      ],
+      "source": [
+        "src/HechoenOaxaca-icp-frontend/dist"
+      ],
+      "type": "assets",
+      "workspace": "HechoenOaxaca-icp-frontend"
+    },
+    "internet_identity": {
+      "candid": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity.did",
+      "frontend": {},
+      "remote": {
+        "id": {
+          "ic": "rdmx6-jaaaa-aaaaa-aaadq-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm.gz"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}

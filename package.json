@@ -1,0 +1,35 @@
+{
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=7.0.0"
+  },
+  "name": "hechoen-oaxaca-icp",
+  "scripts": {
+    "prebuild": "npm run prebuild --workspaces --if-present",
+    "pretest": "npm run prebuild --workspaces --if-present",
+    "start": "npm start --workspaces --if-present",
+    "test": "npm test --workspaces --if-present",
+    "dev": "vite",
+    "build": "tsc && vite build"
+  },
+  "type": "module",
+  "workspaces": [
+    "src/HechoenOaxaca-icp-frontend"
+  ],
+  "dependencies": {
+    "@connect2ic/core": "^0.2.0-beta.24",
+    "@connect2ic/react": "^0.2.0-beta.24",
+    "@dfinity/agent": "^2.2.0",
+    "@dfinity/candid": "^2.2.0",
+    "@dfinity/identity": "^2.1.2",
+    "bootstrap": "^5.3.3",
+    "react": "^18.3.1",
+    "react-bootstrap": "^2.10.5",
+    "sass": "^1.82.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.7",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.14"
+  }
+}
